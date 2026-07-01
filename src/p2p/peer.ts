@@ -21,10 +21,21 @@ export interface PeerHandlers {
   close: () => void
 }
 
-const ICE_SERVERS: RTCIceServer[] = [
+export const ICE_SERVERS: RTCIceServer[] = [
   {urls: 'stun:stun.l.google.com:19302'},
   {urls: 'stun:stun1.l.google.com:19302'},
-  {urls: 'stun:stun.cloudflare.com:3478'}
+  {urls: 'stun:stun.cloudflare.com:3478'},
+  // Free TURN relay (openrelayproject) — needed when direct/STUN pairing
+  // fails (symmetric NAT, hairpinning, host-candidate blocking).
+  {
+    urls: [
+      'turn:openrelay.metered.ca:80',
+      'turn:openrelay.metered.ca:443',
+      'turns:openrelay.metered.ca:443'
+    ],
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  }
 ]
 
 // Keep binary frames well under the ~256 KB cross-browser SCTP message limit.

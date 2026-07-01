@@ -1,6 +1,7 @@
 import {useEffect, useState, type CSSProperties} from 'react'
 import {RegionView, type Segment, type Pt} from './render/RegionView'
 import {useNetwork} from './useNetwork'
+import {runIceTest, type IceTestResult} from './p2p/iceTest'
 import type {Points} from './types'
 
 // Discrete sample-count choices; the slider indexes into the active array.
@@ -87,6 +88,19 @@ export default function App() {
   // otherwise (a remote viewer may move it).
   const [n, setN] = useState(params.n)
   useEffect(() => setN(params.n), [params.n])
+
+  // One-shot WebRTC self-test, so a browser that blocks ICE says so instead of
+  // silently never finding peers.
+  const [ice, setIce] = useState<IceTestResult | null>(null)
+  useEffect(() => {
+    let alive = true
+    void runIceTest().then(r => {
+      if (alive) setIce(r)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
 
   const nonConvex = !params.convex
   const choices = nonConvex ? SAMPLE_CHOICES_NONCONVEX : SAMPLE_CHOICES
@@ -267,6 +281,25 @@ export default function App() {
         {engine === 'error' && engineError && (
           <div style={{color: '#b91c1c', marginTop: 2}}>{engineError}</div>
         )}
+        {ice &&
+          (ice.total === 0 ? (
+            <div style={{color: '#b91c1c', marginTop: 2}}>
+              ⚠ this browser is blocking WebRTC (no ICE candidates) — check
+              privacy extensions/settings
+            </div>
+          ) : (
+            <div style={{color: '#94a3b8'}}>
+              webrtc: {ice.total} candidate{ice.total === 1 ? '' : 's'} (
+              {[
+                ice.host && 'host',
+                ice.srflx && 'srflx',
+                ice.relay && 'relay'
+              ]
+                .filter(Boolean)
+                .join(', ') || 'other'}
+              )
+            </div>
+          ))}
       </div>
     </div>
   )
