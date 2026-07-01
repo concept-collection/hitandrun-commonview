@@ -2,11 +2,11 @@ import * as secp from '@noble/secp256k1'
 
 // The peer's identity is a secp256k1 / BIP340 (schnorr) keypair.
 // - The x-only public key (hex) IS the peer ID.
-// - The private key is persisted in localStorage so the identity survives reloads.
+// - The key is generated fresh per page load (NOT persisted), so every tab —
+//   even in the same browser profile — is its own peer. Nothing else is
+//   persisted either; a reload is simply a new peer joining.
 // - The same key signs both nostr events (for relay discovery/signaling) and
 //   every application-level message sent over WebRTC.
-
-const STORAGE_KEY = 'hitandrun-commonview:privkey'
 
 const toHex = (bytes: Uint8Array): string =>
   bytes.reduce((s, b) => s + b.toString(16).padStart(2, '0'), '')
@@ -19,17 +19,7 @@ const fromHex = (hex: string): Uint8Array => {
   return out
 }
 
-const loadOrCreateSecretKey = (): Uint8Array => {
-  const existing = localStorage.getItem(STORAGE_KEY)
-  if (existing && existing.length === 64) {
-    return fromHex(existing)
-  }
-  const {secretKey} = secp.schnorr.keygen()
-  localStorage.setItem(STORAGE_KEY, toHex(secretKey))
-  return secretKey
-}
-
-const secretKey = loadOrCreateSecretKey()
+const {secretKey} = secp.schnorr.keygen()
 const publicKey = secp.schnorr.getPublicKey(secretKey)
 
 /** This peer's ID = its x-only public key, as hex. */

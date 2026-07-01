@@ -60,8 +60,7 @@ revisit `src/engine/engine.ts`.
 - Headless engine check (no browser): run the script + uihtml round-trip in
   Node against the installed numbl — see the "engine-test" pattern in git
   history / ask the user. `executeCode` is platform-agnostic.
-- Full check: `npm run dev`, open in two different browser **profiles** (same
-  profile = same localStorage key = same peer). Kill the central tab to test
-  failover.
+- Full check: `npm run dev`, open in two tabs (identity is generated per page
+  load, so every tab is its own peer). Kill the central tab to test failover.
 - `npm run build` type-checks (`tsc -b`) and bundles; the numbl worker chunk
   is ~1.5 MB.

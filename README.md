@@ -50,10 +50,9 @@ npm install        # requires numbl >= 0.4.8 on npm (browser-embedding exports)
 npm run dev
 ```
 
-Open the printed URL in **two different browsers or profiles** (two tabs in the
-same profile share the same localStorage key, so they'd be the *same* peer).
-Drag the samples slider or press "New region" in either window and watch both
-update; close the central window and watch the other take over.
+Open the printed URL in two tabs (identity is per page load, so every tab is
+its own peer). Drag the samples slider or press "New region" in either window
+and watch both update; close the central window and watch the other take over.
 
 ## How the engine embedding works
 
